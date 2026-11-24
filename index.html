@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Volta — La banca que se mueve con vos</title>
+<meta name="description" content="Banco digital: cuenta sin costo, tarjeta gratis, transferencias 24/7, inversiones y recompensas." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+/* =========================================================
+   TOKENS
+   ========================================================= */
+:root{
+  --bg:#0A0A0A; --bg-2:#111111; --bg-3:#161616;
+  --yellow:#F5E60A; --yellow-soft:rgba(245,230,10,.18);
+  --text:#F5F5F5; --muted:#A0A0A0; --dim:#6B6B6B;
+  --glass:rgba(255,255,255,.04); --line:rgba(255,255,255,.08);
+  --radius:28px; --radius-sm:18px;
+  --maxw:1240px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:"Urbanist","Outfit",system-ui,sans-serif;font-weight:500;
+  line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+/* Ruido sutil sobre todo el sitio */
+body::before{
+  content:"";position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--yellow);color:#000}
+
+.container{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+section{position:relative}
+.hl{color:var(--yellow)}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--yellow);margin-bottom:18px;
+}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--yellow);box-shadow:0 0 12px var(--yellow)}
+h1,h2,h3{font-weight:600;letter-spacing:-.03em;line-height:1.02}
+.h-xl{font-size:clamp(44px,7vw,84px)}
+.h-lg{font-size:clamp(36px,5.2vw,68px)}
+.h-md{font-size:clamp(28px,3.4vw,44px)}
+.lead{font-size:clamp(17px,1.4vw,19px);color:var(--muted);max-width:520px}
+.small{font-size:14px;color:var(--muted)}
+.sec{padding:clamp(80px,11vw,150px) 0}
+
+/* Glows */
+.glow{
+  position:absolute;border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(circle, rgba(245,230,10,.55) 0%, rgba(245,230,10,.18) 35%, transparent 70%);
+  filter:blur(60px);animation:breathe 7s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{opacity:.75}50%{opacity:1}}
+.cursor-glow{
+  position:fixed;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;
+  background:radial-gradient(circle, rgba(245,230,10,.09), transparent 65%);pointer-events:none;z-index:1;
+  transition:opacity .4s;
+}
+
+/* Wireframe decor */
+.wire{position:absolute;pointer-events:none;z-index:0;opacity:.5}
+.wire *{fill:none;stroke:rgba(255,255,255,.07);stroke-width:1}
+
+/* Glass */
+.glass{
+  background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 28px;
+  border-radius:999px;font-weight:600;font-size:16px;white-space:nowrap;
+  transition:transform .35s var(--ease), box-shadow .35s var(--ease), background .3s, color .3s, border-color .3s;
+}
+.btn-primary{background:var(--yellow);color:#000;box-shadow:0 0 0 rgba(245,230,10,0), 0 10px 30px -10px rgba(245,230,10,.5)}
+.btn-primary:hover{transform:scale(1.04);box-shadow:0 0 40px rgba(245,230,10,.55), 0 14px 40px -8px rgba(245,230,10,.7)}
+.btn-ghost{border:1px solid rgba(255,255,255,.18);color:var(--text)}
+.btn-ghost:hover{border-color:var(--yellow);color:var(--yellow)}
+.btn-dark{background:#0A0A0A;color:var(--yellow)}
+.btn-dark:hover{transform:scale(1.04);box-shadow:0 14px 40px -10px rgba(0,0,0,.6)}
+.btn-sm{height:44px;padding:0 20px;font-size:15px}
+.btn .arrow{transition:transform .3s var(--ease)}
+.btn:hover .arrow{transform:translateX(4px)}
+
+.stores{display:flex;gap:12px;flex-wrap:wrap}
+.store{
+  display:flex;align-items:center;gap:10px;height:52px;padding:0 18px;border-radius:14px;
+  background:#000;border:1px solid rgba(255,255,255,.16);transition:border-color .3s, transform .3s var(--ease);
+}
+.store:hover{border-color:var(--yellow);transform:translateY(-2px)}
+.store svg{width:22px;height:22px;fill:#fff}
+.store small{display:block;font-size:10px;color:var(--muted);line-height:1}
+.store b{display:block;font-size:16px;font-weight:600;line-height:1.15}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .4s, backdrop-filter .4s, border-color .4s;border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(10,10,10,.72);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);border-color:var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:80px;gap:24px}
+.logo{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:600;letter-spacing:-.03em}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:var(--yellow);display:grid;place-items:center;box-shadow:0 0 24px rgba(245,230,10,.45)}
+.logo-mark svg{width:20px;height:20px}
+.nav-links{display:flex;gap:30px;font-size:15px;color:var(--muted)}
+.nav-links a{position:relative;transition:color .25s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;background:var(--yellow);transform:scaleX(0);transition:transform .3s var(--ease);border-radius:2px}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.burger{display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);place-items:center}
+.burger span{display:block;width:18px;height:2px;background:#fff;margin:4px auto;border-radius:2px;transition:transform .3s, opacity .3s}
+.nav.open .burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.nav.open .burger span:nth-child(2){opacity:0}
+.nav.open .burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mobile-menu{display:none}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero{min-height:100vh;padding:140px 0 80px;display:flex;align-items:center;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;position:relative;z-index:2}
+.hero h1{margin-bottom:24px}
+.hero .lead{margin-bottom:36px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+.hero-visual{position:relative;height:660px;display:flex;justify-content:center;align-items:center;perspective:1200px}
+.hero-visual .glow{width:560px;height:560px;top:50%;left:50%;margin:-280px 0 0 -280px}
+.pill-badge{
+  display:inline-flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:999px;margin-bottom:28px;
+  background:var(--glass);border:1px solid var(--line);font-size:14px;color:var(--muted);
+}
+.pill-badge b{background:var(--yellow);color:#000;font-weight:600;border-radius:999px;padding:3px 10px;font-size:12px}
+
+/* Phone */
+.phone{
+  position:relative;width:300px;height:620px;border-radius:52px;padding:12px;z-index:2;
+  background:linear-gradient(145deg,#2a2a2a,#0d0d0d 40%,#1a1a1a);
+  box-shadow:0 0 0 1.5px #333 inset, 0 50px 100px -30px rgba(0,0,0,.9), 0 0 80px -20px rgba(245,230,10,.25);
+}
+.phone::before{content:"";position:absolute;top:22px;left:50%;transform:translateX(-50%);width:96px;height:28px;background:#000;border-radius:20px;z-index:5}
+.screen{position:relative;width:100%;height:100%;border-radius:42px;background:#0B0B0B;overflow:hidden;padding:58px 18px 18px;font-size:13px}
+.app-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#F5E60A,#b9a600);display:grid;place-items:center;color:#000;font-weight:600;font-size:14px}
+.app-icon-btn{width:36px;height:36px;border-radius:50%;background:#1a1a1a;display:grid;place-items:center}
+.app-icon-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.bal-card{border-radius:24px;padding:18px;background:radial-gradient(120% 120% at 100% 0%,rgba(245,230,10,.28),transparent 55%),#151515;border:1px solid var(--line);margin-bottom:16px}
+.bal-card small{color:var(--muted);font-size:11px}
+.bal{font-size:30px;font-weight:600;letter-spacing:-.03em;margin:4px 0 2px}
+.bal span{font-size:16px;color:var(--muted)}
+.up{color:var(--yellow);font-size:11px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.act i{width:48px;height:48px;border-radius:16px;background:#1a1a1a;display:grid;place-items:center;border:1px solid var(--line)}
+.act:first-child i{background:var(--yellow)}
+.act:first-child i svg{stroke:#000}
+.act svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mv-title{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
+.mv-title a{color:var(--yellow)}
+.mv{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.mv i{width:34px;height:34px;border-radius:12px;background:#1a1a1a;display:grid;place-items:center;font-style:normal;font-size:15px}
+.mv div{flex:1;line-height:1.25}
+.mv div small{display:block;color:var(--dim);font-size:10px}
+.mv b{font-weight:600;font-size:13px}
+.mv b.pos{color:var(--yellow)}
+
+/* Bank card */
+.bank-card{
+  position:relative;width:340px;aspect-ratio:1.586;border-radius:20px;padding:22px;overflow:hidden;color:#fff;
+  background:
+    radial-gradient(130% 90% at 0% 0%, rgba(255,255,255,.10), transparent 50%),
+    linear-gradient(135deg,#1c1c1c 0%,#0b0b0b 55%,#141414 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08) inset, 0 40px 80px -20px rgba(0,0,0,.9), 0 0 60px -10px rgba(245,230,10,.25);
+  transform-style:preserve-3d;will-change:transform;
+}
+.bank-card::after{ /* brillo que se mueve con el tilt */
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(circle at var(--gx,30%) var(--gy,20%), rgba(255,255,255,.18), transparent 45%);
+  mix-blend-mode:soft-light;
+}
+.bank-card .bc-logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:600;color:var(--yellow);letter-spacing:-.02em}
+.bank-card .bc-logo svg{width:22px;height:22px}
+.chip{position:absolute;left:22px;top:40%;width:44px;height:34px;border-radius:7px;background:linear-gradient(135deg,#f9ef8a,#c9a400 50%,#8a6f00);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.chip::before{content:"";position:absolute;inset:7px 0;border-top:1px solid rgba(0,0,0,.3);border-bottom:1px solid rgba(0,0,0,.3)}
+.chip::after{content:"";position:absolute;inset:0 15px;border-left:1px solid rgba(0,0,0,.3);border-right:1px solid rgba(0,0,0,.3)}
+.contactless{position:absolute;right:22px;top:40%;width:26px;height:26px;stroke:rgba(255,255,255,.6);fill:none;stroke-width:2;stroke-linecap:round}
+.bc-num{position:absolute;left:22px;bottom:46px;font-size:16px;letter-spacing:.18em;color:rgba(255,255,255,.75)}
+.bc-name{position:absolute;left:22px;bottom:20px;font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.bc-net{position:absolute;right:22px;bottom:18px;display:flex}
+.bc-net span{width:30px;height:30px;border-radius:50%;background:#F5E60A;opacity:.95}
+.bc-net span+span{margin-left:-12px;background:#fff;opacity:.35}
+.hero .bank-card{position:absolute;right:-10px;bottom:70px;z-index:3;width:300px}
+.float-chip{
+  position:absolute;z-index:4;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:18px;font-size:13px;
+  background:rgba(20,20,20,.75);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 20px 40px -15px rgba(0,0,0,.8);
+}
+.float-chip i{width:34px;height:34px;border-radius:12px;background:var(--yellow);display:grid;place-items:center;font-style:normal;color:#000}
+.float-chip i svg{width:18px;height:18px;stroke:#000;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.float-chip small{display:block;color:var(--muted);font-size:11px;line-height:1.2}
+.float-chip b{font-weight:600}
+.fc-1{top:110px;left:0}
+.fc-2{top:300px;right:-6px}
+
+/* =========================================================
+   SOCIAL PROOF
+   ========================================================= */
+.proof{padding:40px 0 70px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-2);overflow:hidden}
+.proof-top{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:34px;text-align:center}
+.avatars{display:flex}
+.avatars span{width:42px;height:42px;border-radius:50%;border:3px solid var(--bg-2);margin-left:-12px;display:grid;place-items:center;font-weight:600;font-size:14px;color:#000}
+.avatars span:first-child{margin-left:0}
+.proof-top p{font-size:18px}
+.proof-top p b{color:var(--yellow);font-weight:600}
+.stars{color:var(--yellow);letter-spacing:2px}
+.marquee{display:flex;gap:70px;width:max-content;animation:marq 32s linear infinite}
+.marquee-wrap{mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.marquee span{font-size:26px;font-weight:600;color:#3a3a3a;letter-spacing:-.02em;white-space:nowrap;transition:color .3s}
+.marquee span:hover{color:var(--muted)}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* =========================================================
+   BENEFITS
+   ========================================================= */
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:60px;flex-wrap:wrap}
+.sec-head .lead{max-width:420px}
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative;z-index:2}
+.b-card{position:relative;padding:34px;overflow:hidden;transition:transform .45s var(--ease), border-color .4s, background .4s;min-height:300px;display:flex;flex-direction:column}
+.b-card::before{content:"";position:absolute;width:300px;height:300px;left:var(--mx,100%);top:var(--my,0%);transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(245,230,10,.24),transparent 70%);filter:blur(30px);opacity:.5;transition:opacity .5s, left .25s ease-out, top .25s ease-out;pointer-events:none}
+.b-card > *{position:relative}
+.b-card:hover{transform:translateY(-6px);border-color:rgba(245,230,10,.3);background:rgba(255,255,255,.06)}
+.b-card:hover::before{opacity:1}
+.b-card .ico3d{width:96px;height:96px;margin-bottom:auto}
+.b-card h3{font-size:24px;margin:28px 0 10px;letter-spacing:-.02em}
+.b-card p{color:var(--muted);font-size:15px}
+.b-card.featured{background:var(--yellow);border-color:var(--yellow);color:#000}
+.b-card.featured p{color:rgba(0,0,0,.7)}
+.b-card.featured::before{display:none}
+.b-card.featured:hover{background:#fff04a}
+.ico3d{filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)) drop-shadow(0 0 22px rgba(245,230,10,.22))}
+
+/* =========================================================
+   THE CARD
+   ========================================================= */
+.card-sec{background:var(--bg-2);overflow:hidden;text-align:center}
+.card-sec .glow{width:900px;height:600px;left:50%;top:-180px;margin-left:-450px;background:radial-gradient(ellipse, rgba(245,230,10,.45), rgba(245,230,10,.1) 40%, transparent 70%)}
+.spot{position:absolute;left:50%;top:0;width:600px;height:100%;transform:translateX(-50%);pointer-events:none;z-index:0;
+  background:conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(245,230,10,.10) 175deg, rgba(245,230,10,.16) 180deg, rgba(245,230,10,.10) 185deg, transparent 200deg);filter:blur(10px)}
+.card-sec .container{position:relative;z-index:2}
+.card-stage{perspective:1400px;display:flex;justify-content:center;margin:70px 0 60px}
+.card-stage .bank-card{width:min(520px,88vw);padding:34px;border-radius:30px}
+.card-stage .bank-card .bc-logo{font-size:30px}
+.card-stage .bank-card .bc-logo svg{width:32px;height:32px}
+.card-stage .chip{left:34px;width:62px;height:48px;border-radius:10px}
+.card-stage .contactless{right:34px;width:36px;height:36px}
+.card-stage .bc-num{left:34px;bottom:70px;font-size:22px}
+.card-stage .bc-name{left:34px;bottom:32px;font-size:14px}
+.card-stage .bc-net{right:34px;bottom:28px}
+.card-stage .bc-net span{width:44px;height:44px}
+.card-stage .bc-net span+span{margin-left:-18px}
+.card-shadow{width:60%;height:40px;margin:-30px auto 0;background:radial-gradient(ellipse,rgba(245,230,10,.35),transparent 70%);filter:blur(20px)}
+.card-feats{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.card-feats div{display:flex;align-items:center;gap:10px;padding:14px 20px;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:15px}
+.card-feats div::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--yellow)}
+
+/* =========================================================
+   SPLIT — PAY
+   ========================================================= */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.split .lead{margin:24px 0 32px}
+.check-list{list-style:none;margin-bottom:36px;display:grid;gap:14px}
+.check-list li{display:flex;gap:12px;align-items:center;color:var(--text)}
+.check-list li svg{width:24px;height:24px;flex:none}
+.yblock{position:relative;background:var(--yellow);border-radius:36px;min-height:560px;display:grid;place-items:center;overflow:hidden;color:#000}
+.yblock .wire *{stroke:rgba(0,0,0,.12)}
+.terminal{
+  position:relative;z-index:2;width:220px;height:380px;border-radius:34px;padding:16px;
+  background:linear-gradient(160deg,#2b2b2b,#0c0c0c 60%);box-shadow:0 40px 70px -20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.12);
+  transform:rotate(-8deg);
+}
+.term-screen{height:150px;border-radius:20px;background:#0A0A0A;border:1px solid #222;padding:18px;color:#fff;display:flex;flex-direction:column;justify-content:space-between}
+.term-screen small{color:var(--muted);font-size:11px}
+.term-screen .amt{font-size:28px;font-weight:600;letter-spacing:-.03em}
+.ok{display:flex;align-items:center;gap:8px;color:var(--yellow);font-size:13px;font-weight:600}
+.ok i{width:20px;height:20px;border-radius:50%;background:var(--yellow);display:grid;place-items:center}
+.ok i svg{width:12px;height:12px;stroke:#000;stroke-width:3;fill:none}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.keys span{height:36px;border-radius:12px;background:#1d1d1d;display:grid;place-items:center;color:#bbb;font-size:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.keys span:last-child{background:var(--yellow);color:#000}
+.tap-card{position:absolute;z-index:3;width:230px;right:12%;top:16%;transform:rotate(14deg)}
+.tap-card .bank-card{width:230px;padding:16px;border-radius:14px}
+.tap-card .bc-logo{font-size:14px}.tap-card .bc-logo svg{width:16px;height:16px}
+.tap-card .chip{left:16px;width:32px;height:24px}.tap-card .contactless{right:16px;width:18px;height:18px}
+.tap-card .bc-num{left:16px;bottom:30px;font-size:11px}.tap-card .bc-name{display:none}
+.tap-card .bc-net{right:16px;bottom:12px}.tap-card .bc-net span{width:20px;height:20px}.tap-card .bc-net span+span{margin-left:-8px}
+.waves{position:absolute;right:30%;top:30%;z-index:3;width:70px;height:70px;stroke:#000;fill:none;stroke-width:3;stroke-linecap:round;opacity:.7}
+.waves path{animation:wave 1.8s ease-out infinite}
+.waves path:nth-child(2){animation-delay:.25s}.waves path:nth-child(3){animation-delay:.5s}
+@keyframes wave{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.ychip{position:absolute;z-index:4;bottom:40px;left:36px;background:#0A0A0A;color:#fff;border-radius:18px;padding:14px 18px;display:flex;gap:12px;align-items:center;font-size:13px}
+.ychip b{color:var(--yellow);font-weight:600;font-size:16px;display:block}
+
+/* =========================================================
+   METRICS
+   ========================================================= */
+.metrics-sec{background:var(--bg-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:90px 0}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.metric{padding:10px 24px;border-left:1px solid var(--line)}
+.metric:first-child{border-left:0}
+.metric .num{font-size:clamp(44px,5.4vw,72px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.metric .num em{font-style:normal;color:var(--yellow)}
+.metric p{color:var(--muted);margin-top:10px;font-size:15px}
+
+/* =========================================================
+   APP CAROUSEL
+   ========================================================= */
+.app-sec{overflow:hidden}
+.app-sec .glow{width:900px;height:500px;left:50%;top:40%;margin-left:-450px}
+.carousel-wrap{position:relative;z-index:2}
+.carousel{
+  display:flex;gap:28px;overflow-x:auto;scroll-snap-type:x mandatory;padding:40px max(24px,calc((100vw - var(--maxw))/2 + 24px)) 60px;
+  scrollbar-width:none;cursor:grab;
+}
+.carousel::-webkit-scrollbar{display:none}
+.carousel.dragging{cursor:grabbing;scroll-snap-type:none}
+.slide{flex:none;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;gap:22px;user-select:none}
+.slide .phone{width:260px;height:540px;border-radius:46px;transition:transform .5s var(--ease)}
+.slide .phone::before{top:20px;width:84px;height:24px}
+.slide .screen{border-radius:36px;padding:54px 16px 16px}
+.slide:hover .phone{transform:translateY(-10px)}
+.slide-cap{text-align:center}
+.slide-cap b{display:block;font-size:18px;font-weight:600}
+.slide-cap span{font-size:14px;color:var(--muted)}
+.car-ctrl{display:flex;gap:10px}
+.car-ctrl button{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:background .3s,border-color .3s}
+.car-ctrl button:hover{background:var(--yellow);border-color:var(--yellow)}
+.car-ctrl button:hover svg{stroke:#000}
+.car-ctrl svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+/* mini screens */
+.scr-title{font-size:18px;font-weight:600;margin-bottom:14px;letter-spacing:-.02em}
+.goal{padding:14px;border-radius:18px;background:#151515;border:1px solid var(--line);margin-bottom:10px}
+.goal-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
+.goal-top b{font-weight:600}
+.bar{height:8px;border-radius:8px;background:#262626;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:8px;background:var(--yellow)}
+.goal small{display:block;margin-top:6px;color:var(--dim);font-size:10px}
+.level{text-align:center;padding-top:6px}
+.level .ico3d{width:130px;height:130px;margin:6px auto 10px}
+.level h4{font-size:22px;font-weight:600}
+.level p{color:var(--muted);font-size:12px;margin-bottom:14px}
+.tiers{display:flex;justify-content:space-between;gap:6px;margin-top:14px}
+.tiers span{flex:1;padding:8px 0;border-radius:12px;background:#151515;font-size:10px;color:var(--dim)}
+.tiers span.on{background:var(--yellow);color:#000;font-weight:600}
+.points{text-align:center;padding:20px 0 14px;border-radius:22px;background:radial-gradient(circle at 50% 0%,rgba(245,230,10,.3),transparent 70%),#141414;border:1px solid var(--line);margin-bottom:12px}
+.points .ico3d{width:80px;height:80px;margin:0 auto 6px}
+.points b{font-size:30px;font-weight:600;display:block;letter-spacing:-.03em}
+.points small{color:var(--muted);font-size:11px}
+.reward{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:#151515;margin-bottom:8px;font-size:12px}
+.reward i{width:32px;height:32px;border-radius:10px;background:#222;display:grid;place-items:center;font-style:normal}
+.reward span{flex:1}
+.reward em{font-style:normal;color:var(--yellow);font-weight:600}
+.inv-mini{border-radius:20px;background:#141414;border:1px solid var(--line);padding:14px;margin-bottom:10px}
+.inv-mini svg{width:100%;height:110px;margin-top:8px}
+.chips{display:flex;gap:6px;margin-top:10px}
+.chips span{padding:6px 10px;border-radius:999px;background:#1d1d1d;font-size:10px;color:var(--muted)}
+.chips span.on{background:var(--yellow);color:#000}
+
+/* =========================================================
+   INVESTMENTS
+   ========================================================= */
+.inv-sec{background:var(--bg-2);overflow:hidden}
+.inv-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;position:relative;z-index:2}
+.inv-chart{padding:34px;position:relative;overflow:hidden}
+.inv-chart-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.inv-chart-top .big{font-size:clamp(36px,4vw,52px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:rgba(245,230,10,.12);color:var(--yellow);font-size:13px;font-weight:600}
+.ranges{display:flex;gap:6px;background:#0d0d0d;border:1px solid var(--line);padding:5px;border-radius:999px}
+.ranges button{padding:8px 14px;border-radius:999px;font-size:13px;color:var(--muted);transition:background .3s,color .3s}
+.ranges button.on{background:var(--yellow);color:#000}
+#chart{width:100%;height:300px;margin-top:30px;overflow:visible}
+#chart .grid line{stroke:rgba(255,255,255,.06)}
+#chart text{fill:var(--dim);font-size:11px;font-family:inherit}
+.sim{padding:34px;display:flex;flex-direction:column;gap:26px}
+.sim h3{font-size:28px}
+.field label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;font-size:15px;color:var(--muted)}
+.field label output{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.02em}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:8px;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--yellow) 0%,var(--yellow) var(--p,30%),#262626 var(--p,30%));}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--yellow);border:5px solid #0A0A0A;box-shadow:0 0 0 1px var(--yellow),0 0 20px rgba(245,230,10,.6)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--yellow);border:5px solid #0A0A0A;box-shadow:0 0 0 1px var(--yellow),0 0 20px rgba(245,230,10,.6)}
+input[type=range]:focus-visible{box-shadow:0 0 0 3px rgba(245,230,10,.35)}
+.result{border-radius:22px;padding:22px;background:var(--yellow);color:#000}
+.result small{font-size:13px;opacity:.7}
+.result .r-big{font-size:clamp(34px,3.6vw,46px);font-weight:600;letter-spacing:-.04em;line-height:1.05;margin:4px 0 12px}
+.result-row{display:flex;justify-content:space-between;font-size:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,.15)}
+.result-row b{font-weight:600}
+.disclaimer{font-size:12px;color:var(--dim)}
+
+/* =========================================================
+   GLOBAL YELLOW BLOCK
+   ========================================================= */
+.global{background:var(--yellow);color:#000;overflow:hidden}
+.global-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;min-height:560px}
+.global .eyebrow{color:#000}
+.global .eyebrow::before{background:#000;box-shadow:none}
+.global p{color:rgba(0,0,0,.7);font-size:18px;max-width:460px;margin:24px 0 34px}
+.globe-wrap{position:relative;height:520px}
+.globe{position:absolute;inset:0;margin:auto;width:440px;height:440px;max-width:100%}
+.globe *{fill:none;stroke:rgba(0,0,0,.28);stroke-width:1.2}
+.globe .meridians{animation:spin 30s linear infinite;transform-origin:220px 220px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flag{
+  position:absolute;width:86px;height:86px;border-radius:50%;overflow:hidden;
+  box-shadow:0 24px 40px -12px rgba(0,0,0,.45), inset 0 -8px 16px rgba(0,0,0,.25), 0 0 0 4px rgba(0,0,0,.85);
+  animation:bob 6s ease-in-out infinite;
+}
+.flag::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.65),transparent 38%),radial-gradient(circle at 70% 85%,rgba(0,0,0,.3),transparent 50%)}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-16px) rotate(4deg)}}
+.f-ar{background:linear-gradient(#74ACDF 33.3%,#fff 33.3% 66.6%,#74ACDF 66.6%);top:6%;left:18%}
+.f-ar::before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#F6B40E;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(246,180,14,.4)}
+.f-br{background:#009C3B;top:22%;right:8%;width:100px;height:100px;animation-delay:-1.5s}
+.f-br::before{content:"";position:absolute;inset:16%;background:#FFDF00;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.f-br span{position:absolute;inset:34%;border-radius:50%;background:#002776;z-index:1}
+.f-es{background:linear-gradient(#AA151B 25%,#F1BF00 25% 75%,#AA151B 75%);bottom:12%;left:8%;animation-delay:-3s}
+.f-us{background:repeating-linear-gradient(#B22234 0 7.7%,#fff 7.7% 15.4%);bottom:8%;right:22%;width:74px;height:74px;animation-delay:-2s}
+.f-us::before{content:"";position:absolute;left:0;top:0;width:46%;height:54%;background:#3C3B6E}
+.f-mx{background:linear-gradient(90deg,#006847 33.3%,#fff 33.3% 66.6%,#CE1126 66.6%);top:46%;left:-2%;width:70px;height:70px;animation-delay:-4s}
+.f-it{background:linear-gradient(90deg,#009246 33.3%,#fff 33.3% 66.6%,#CE2B37 66.6%);top:2%;right:34%;width:60px;height:60px;animation-delay:-2.6s}
+.fx-chip{position:absolute;z-index:3;top:50%;left:50%;transform:translate(-50%,-50%);background:#0A0A0A;color:#fff;border-radius:22px;padding:18px 22px;min-width:230px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.fx-chip small{color:var(--muted);font-size:12px}
+.fx-chip .fx{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:600;margin-top:4px;gap:12px}
+.fx-chip .fx em{font-style:normal;color:var(--yellow)}
+.fx-chip .fx svg{width:18px;height:18px;stroke:var(--yellow);fill:none;stroke-width:2}
+
+/* =========================================================
+   SECURITY
+   ========================================================= */
+.sec-security{overflow:hidden;text-align:center}
+.sec-security .glow{width:640px;height:640px;left:50%;top:50%;margin:-200px 0 0 -320px}
+.shield-stage{position:relative;max-width:1000px;margin:70px auto 0;min-height:560px;display:grid;place-items:center}
+.shield-stage .ico3d{width:300px;height:300px;position:relative;z-index:2}
+.orbit{position:absolute;border-radius:50%;border:1px dashed rgba(255,255,255,.1);left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+.o1{width:420px;height:420px}.o2{width:620px;height:620px;border-style:solid;border-color:rgba(255,255,255,.05)}
+.orbit::after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;background:var(--yellow);box-shadow:0 0 14px var(--yellow)}
+.o1{animation:orb 16s linear infinite}.o2{animation:orb 28s linear infinite reverse}
+@keyframes orb{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.sec-point{position:absolute;z-index:3;width:250px;text-align:left;padding:22px}
+.sec-point .sp-ico{width:44px;height:44px;border-radius:14px;background:rgba(245,230,10,.12);display:grid;place-items:center;margin-bottom:14px}
+.sec-point .sp-ico svg{width:22px;height:22px;stroke:var(--yellow);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sec-point h4{font-size:18px;font-weight:600;margin-bottom:6px}
+.sec-point p{font-size:14px;color:var(--muted)}
+.sp1{top:20px;left:0}.sp2{top:20px;right:0}.sp3{bottom:20px;left:0}.sp4{bottom:20px;right:0}
+
+/* =========================================================
+   FAQ
+   ========================================================= */
+.faq-sec{background:var(--bg-2)}
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:60px;align-items:start}
+.faq-side{position:sticky;top:120px}
+.faq-side .lead{margin:20px 0 30px}
+.faq{display:grid;gap:12px}
+.qa{border-radius:22px;background:var(--glass);border:1px solid var(--line);transition:border-color .3s, background .3s}
+.qa.open{border-color:rgba(245,230,10,.35);background:rgba(255,255,255,.055)}
+.qa button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 26px;text-align:left;font-size:18px;font-weight:600}
+.qa .plus{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:transform .4s var(--ease), background .3s}
+.qa .plus svg{width:14px;height:14px;stroke:#fff;stroke-width:2.2}
+.qa.open .plus{transform:rotate(45deg);background:var(--yellow);border-color:var(--yellow)}
+.qa.open .plus svg{stroke:#000}
+.qa .ans{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease)}
+.qa.open .ans{grid-template-rows:1fr}
+.qa .ans > div{overflow:hidden}
+.qa .ans p{padding:0 26px 24px;color:var(--muted);max-width:620px}
+
+/* =========================================================
+   CTA
+   ========================================================= */
+.cta{overflow:hidden;text-align:center;padding:clamp(100px,14vw,180px) 0}
+.cta .glow{width:1000px;height:700px;left:50%;top:50%;margin:-350px 0 0 -500px}
+.cta-box{position:relative;z-index:2;max-width:820px;margin:0 auto}
+.cta-box .lead{margin:22px auto 38px}
+.cta-btns{display:flex;flex-direction:column;align-items:center;gap:24px}
+.cta .ico3d.float{position:absolute;z-index:1}
+.cta .ci1{width:120px;left:8%;top:22%}
+.cta .ci2{width:110px;right:9%;top:16%}
+.cta .ci3{width:96px;right:16%;bottom:16%}
+.cta .ci4{width:90px;left:14%;bottom:14%}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+footer{background:#050505;border-top:1px solid var(--line);padding:80px 0 40px;color:var(--muted);font-size:14px}
+.f-top{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:40px;padding-bottom:50px;border-bottom:1px solid var(--line)}
+.f-brand p{margin:18px 0 22px;max-width:280px}
+.socials{display:flex;gap:10px}
+.socials a{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:background .3s,border-color .3s}
+.socials a:hover{background:var(--yellow);border-color:var(--yellow)}
+.socials a:hover svg{fill:#000}
+.socials svg{width:16px;height:16px;fill:#fff}
+.f-col h5{color:var(--text);font-size:15px;font-weight:600;margin-bottom:18px}
+.f-col ul{list-style:none;display:grid;gap:12px}
+.f-col a{transition:color .25s}
+.f-col a:hover{color:var(--yellow)}
+.f-reg{display:flex;gap:18px;align-items:flex-start;padding:30px 0;border-bottom:1px solid var(--line)}
+.f-reg .ico3d{width:52px;height:52px;flex:none}
+.f-reg p{font-size:13px;line-height:1.6;max-width:900px}
+.f-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:30px;flex-wrap:wrap}
+.f-legal{display:flex;gap:22px;flex-wrap:wrap}
+.f-legal a:hover{color:var(--text)}
+.lang{position:relative}
+.lang select{appearance:none;-webkit-appearance:none;background:var(--glass);border:1px solid var(--line);color:var(--text);font:inherit;font-size:14px;padding:10px 40px 10px 16px;border-radius:999px;cursor:pointer}
+.lang select:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.lang::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.lang option{background:#111}
+
+:focus-visible{outline:2px solid var(--yellow);outline-offset:3px;border-radius:8px}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width:1080px){
+  .nav-links{display:none}
+  .burger{display:grid}
+  .nav-cta .btn-ghost{display:none}
+  .mobile-menu{display:block;position:fixed;top:80px;left:0;right:0;background:rgba(10,10,10,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line);
+    padding:10px 24px 28px;transform:translateY(-10px);opacity:0;pointer-events:none;transition:opacity .3s, transform .3s}
+  .nav.open .mobile-menu{opacity:1;transform:none;pointer-events:auto}
+  .mobile-menu a{display:block;padding:14px 0;font-size:20px;border-bottom:1px solid var(--line)}
+  .mobile-menu .btn{margin-top:20px;width:100%}
+  .hero-grid,.split,.inv-grid,.global-grid,.faq-grid{grid-template-columns:1fr}
+  .hero{padding-top:120px}
+  .hero-visual{height:640px}
+  .benefits{grid-template-columns:repeat(2,1fr)}
+  .metrics{grid-template-columns:repeat(2,1fr);row-gap:40px}
+  .metric:nth-child(3){border-left:0}
+  .f-top{grid-template-columns:repeat(2,1fr)}
+  .f-brand{grid-column:1/-1}
+  .faq-side{position:static}
+  .shield-stage{min-height:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .shield-stage .ico3d{grid-column:1/-1;margin:0 auto 20px;width:240px;height:240px}
+  .sec-point{position:static;width:auto}
+  .orbit{display:none}
+}
+@media (max-width:640px){
+  .nav-cta .btn-primary{display:none}
+  .hero-btns .btn{flex:1}
+  .hero-visual{height:600px;transform:scale(.88);transform-origin:center top;margin-bottom:-60px}
+  .hero .bank-card{right:-20px;width:250px;bottom:40px}
+  .fc-1{left:-14px}.fc-2{right:-14px}
+  .benefits{grid-template-columns:1fr}
+  .b-card{min-height:auto}
+  .metrics{grid-template-columns:1fr 1fr}
+  .metric{padding:10px 14px}
+  .yblock{min-height:460px}
+  .tap-card{right:4%}
+  .globe-wrap{height:420px}
+  .globe{width:340px;height:340px}
+  .shield-stage{grid-template-columns:1fr}
+  .f-top{grid-template-columns:1fr 1fr}
+  .cta .ico3d.float{display:none}
+  .card-stage .bank-card{padding:22px;border-radius:22px}
+  .card-stage .bank-card .bc-logo{font-size:20px}
+  .card-stage .chip{left:22px;width:44px;height:34px}
+  .card-stage .contactless{right:22px;width:26px;height:26px}
+  .card-stage .bc-num{left:22px;bottom:46px;font-size:14px}
+  .card-stage .bc-name{left:22px;bottom:20px;font-size:11px}
+  .card-stage .bc-net{right:22px;bottom:18px}
+  .card-stage .bc-net span{width:30px;height:30px}
+  .card-stage .bc-net span+span{margin-left:-12px}
+  .inv-chart,.sim{padding:24px}
+  .qa button{font-size:16px;padding:20px}
+  .qa .ans p{padding:0 20px 20px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .cursor-glow{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Gradientes compartidos para los íconos 3D dorados -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF9B0"/><stop offset=".35" stop-color="#F5E60A"/>
+      <stop offset=".7" stop-color="#D4A900"/><stop offset="1" stop-color="#7A5800"/>
+    </linearGradient>
+    <linearGradient id="goldSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B88A00"/><stop offset="1" stop-color="#5C4100"/>
+    </linearGradient>
+    <linearGradient id="goldLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDE0"/><stop offset="1" stop-color="#F5E60A"/>
+    </linearGradient>
+    <radialGradient id="shine" cx=".3" cy=".25" r=".5">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dark3d" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a3a3a"/><stop offset="1" stop-color="#0d0d0d"/>
+    </linearGradient>
+    <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F5E60A" stop-opacity=".35"/><stop offset="1" stop-color="#F5E60A" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ÍCONOS 3D (symbols reutilizables). Reemplazables por renders: ver <img data-3d> comentado en cada uso -->
+    <symbol id="i-shield" viewBox="0 0 120 120">
+      <path d="M60 14 98 28v30c0 26-17 42-38 50-21-8-38-24-38-50V28z" fill="url(#goldSide)" transform="translate(0 6)"/>
+      <path d="M60 10 98 24v30c0 26-17 42-38 50-21-8-38-24-38-50V24z" fill="url(#gold)"/>
+      <path d="M60 20 88 31v23c0 20-12 33-28 40-16-7-28-20-28-40V31z" fill="url(#goldSide)" opacity=".35"/>
+      <path d="m44 56 11 11 22-23" fill="none" stroke="#3a2a00" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 2)" opacity=".5"/>
+      <path d="m44 56 11 11 22-23" fill="none" stroke="#FFFDE6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="44" cy="30" rx="16" ry="8" fill="url(#shine)" transform="rotate(-20 44 30)"/>
+    </symbol>
+    <symbol id="i-coin" viewBox="0 0 120 120">
+      <ellipse cx="60" cy="66" rx="44" ry="44" fill="url(#goldSide)"/>
+      <circle cx="60" cy="58" r="44" fill="url(#gold)"/>
+      <circle cx="60" cy="58" r="34" fill="none" stroke="#B88A00" stroke-width="3" opacity=".7"/>
+      <path d="m60 34 7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z" fill="#9C7400" transform="translate(0 2)" opacity=".6"/>
+      <path d="m60 34 7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z" fill="url(#goldLight)"/>
+      <ellipse cx="42" cy="34" rx="14" ry="7" fill="url(#shine)" transform="rotate(-30 42 34)"/>
+    </symbol>
+    <symbol id="i-gift" viewBox="0 0 120 120">
+      <path d="M22 54h76v46a6 6 0 0 1-6 6H28a6 6 0 0 1-6-6z" fill="url(#goldSide)"/>
+      <path d="M22 54h76v40a6 6 0 0 1-6 6H28a6 6 0 0 1-6-6z" fill="url(#gold)"/>
+      <rect x="16" y="38" width="88" height="20" rx="6" fill="url(#goldLight)"/>
+      <rect x="53" y="38" width="14" height="62" fill="#0f0f0f"/>
+      <path d="M60 38c-8-18-30-20-30-8 0 8 14 8 30 8zM60 38c8-18 30-20 30-8 0 8-14 8-30 8z" fill="url(#gold)" stroke="#9C7400" stroke-width="2"/>
+      <ellipse cx="34" cy="44" rx="12" ry="4" fill="url(#shine)"/>
+    </symbol>
+    <symbol id="i-card" viewBox="0 0 120 120">
+      <rect x="14" y="34" width="92" height="60" rx="10" fill="url(#goldSide)" transform="rotate(-12 60 64) translate(0 6)"/>
+      <rect x="14" y="34" width="92" height="60" rx="10" fill="url(#gold)" transform="rotate(-12 60 64)"/>
+      <g transform="rotate(-12 60 64)">
+        <rect x="14" y="46" width="92" height="12" fill="#3a2a00" opacity=".55"/>
+        <rect x="24" y="68" width="16" height="12" rx="3" fill="url(#goldLight)" stroke="#9C7400"/>
+        <rect x="70" y="76" width="26" height="5" rx="2.5" fill="#7A5800" opacity=".6"/>
+        <ellipse cx="34" cy="40" rx="18" ry="4" fill="url(#shine)"/>
+      </g>
+    </symbol>
+    <symbol id="i-piggy" viewBox="0 0 120 120">
+      <ellipse cx="58" cy="68" rx="40" ry="32" fill="url(#goldSide)" transform="translate(0 4)"/>
+      <ellipse cx="58" cy="66" rx="40" ry="32" fill="url(#gold)"/>
+      <path d="M36 42 32 26l16 10z" fill="url(#gold)"/>
+      <rect x="92" y="58" width="16" height="18" rx="7" fill="url(#goldLight)" stroke="#9C7400" stroke-width="2"/>
+      <circle cx="98" cy="66" r="1.8" fill="#7A5800"/><circle cx="103" cy="66" r="1.8" fill="#7A5800"/>
+      <circle cx="78" cy="56" r="3.5" fill="#2a1f00"/>
+      <rect x="46" y="38" width="22" height="5" rx="2.5" fill="#5C4100"/>
+      <rect x="34" y="92" width="10" height="14" rx="4" fill="url(#goldSide)"/><rect x="70" y="92" width="10" height="14" rx="4" fill="url(#goldSide)"/>
+      <circle cx="57" cy="20" r="11" fill="url(#gold)"/><circle cx="57" cy="20" r="6" fill="none" stroke="#9C7400" stroke-width="2"/>
+      <ellipse cx="42" cy="52" rx="16" ry="7" fill="url(#shine)" transform="rotate(-25 42 52)"/>
+    </symbol>
+    <symbol id="i-bolt" viewBox="0 0 120 120">
+      <circle cx="60" cy="64" r="44" fill="url(#goldSide)"/>
+      <circle cx="60" cy="58" r="44" fill="url(#gold)"/>
+      <path d="M66 24 38 64h20l-6 32 30-42H62z" fill="#3a2a00" opacity=".45" transform="translate(0 3)"/>
+      <path d="M66 24 38 64h20l-6 32 30-42H62z" fill="url(#goldLight)"/>
+      <ellipse cx="42" cy="34" rx="14" ry="7" fill="url(#shine)" transform="rotate(-30 42 34)"/>
+    </symbol>
+    <symbol id="i-finger" viewBox="0 0 120 120">
+      <rect x="18" y="18" width="84" height="88" rx="26" fill="url(#goldSide)" transform="translate(0 6)"/>
+      <rect x="18" y="16" width="84" height="88" rx="26" fill="url(#gold)"/>
+      <g fill="none" stroke="#5C4100" stroke-width="4.5" stroke-linecap="round" opacity=".85">
+        <path d="M42 54a18 18 0 0 1 36 0v10"/><path d="M50 82c4-6 6-14 6-26a4 4 0 0 1 8 0c0 14-3 24-8 32"/>
+        <path d="M36 70v-14a24 24 0 0 1 40-18"/><path d="M70 74c-1 7-3 13-6 18"/><path d="M42 80c2-4 3-9 3-16"/>
+      </g>
+      <ellipse cx="40" cy="28" rx="16" ry="6" fill="url(#shine)" transform="rotate(-15 40 28)"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 120 120">
+      <rect x="18" y="64" width="20" height="40" rx="5" fill="url(#goldSide)"/><rect x="18" y="60" width="20" height="40" rx="5" fill="url(#gold)"/>
+      <rect x="50" y="44" width="20" height="60" rx="5" fill="url(#goldSide)"/><rect x="50" y="40" width="20" height="60" rx="5" fill="url(#gold)"/>
+      <rect x="82" y="24" width="20" height="80" rx="5" fill="url(#goldSide)"/><rect x="82" y="20" width="20" height="80" rx="5" fill="url(#gold)"/>
+      <path d="M20 46 52 26l18 10 30-24" fill="none" stroke="#FFFDE6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="90" cy="26" rx="6" ry="3" fill="url(#shine)"/>
+    </symbol>
+    <symbol id="i-headset" viewBox="0 0 120 120">
+      <path d="M26 66V58a34 34 0 0 1 68 0v8" fill="none" stroke="url(#goldSide)" stroke-width="10" transform="translate(0 4)"/>
+      <path d="M26 66V58a34 34 0 0 1 68 0v8" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>
+      <rect x="14" y="60" width="26" height="36" rx="12" fill="url(#gold)"/>
+      <rect x="80" y="60" width="26" height="36" rx="12" fill="url(#gold)"/>
+      <path d="M93 96c0 8-10 12-24 12" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+      <rect x="58" y="102" width="16" height="10" rx="5" fill="url(#goldLight)"/>
+      <ellipse cx="24" cy="68" rx="5" ry="8" fill="url(#shine)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="cursor-glow" aria-hidden="true"></div>
+
+<!-- ================= NAVBAR ================= -->
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#" class="logo" aria-label="Volta, inicio">
+      <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 8-11h-6z" fill="#000"/></svg></span>
+      <span class="brand">Volta</span>
+    </a>
+    <nav class="nav-links" aria-label="Principal">
+      <a href="#beneficios">Cuentas</a>
+      <a href="#tarjeta">Tarjetas</a>
+      <a href="#inversiones">Inversiones</a>
+      <a href="#pagos">Préstamos</a>
+      <a href="#global">Empresas</a>
+      <a href="#faq">Ayuda</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#" class="btn btn-ghost btn-sm">Ingresar</a>
+      <a href="#cta" class="btn btn-primary btn-sm">Abrí tu cuenta</a>
+      <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="mobile-menu">
+    <a href="#beneficios">Cuentas</a><a href="#tarjeta">Tarjetas</a><a href="#inversiones">Inversiones</a>
+    <a href="#pagos">Préstamos</a><a href="#global">Empresas</a><a href="#faq">Ayuda</a>
+    <a href="#" class="btn btn-ghost">Ingresar</a>
+    <a href="#cta" class="btn btn-primary">Abrí tu cuenta</a>
+  </div>
+</header>
+
+<main>
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <svg class="wire" style="left:-200px;top:80px;width:700px;height:700px" viewBox="0 0 400 400" aria-hidden="true">
+    <circle cx="200" cy="200" r="190"/><ellipse cx="200" cy="200" rx="190" ry="60"/><ellipse cx="200" cy="200" rx="190" ry="120"/>
+    <ellipse cx="200" cy="200" rx="60" ry="190"/><ellipse cx="200" cy="200" rx="120" ry="190"/><line x1="10" y1="200" x2="390" y2="200"/><line x1="200" y1="10" x2="200" y2="390"/>
+  </svg>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <div class="pill-badge reveal"><b>Nuevo</b> Rendimiento diario en tu cuenta</div>
+      <h1 class="h-xl reveal">La banca que <span class="hl">se mueve</span> con vos</h1>
+      <p class="lead reveal">Abrí tu cuenta en minutos, pagá con tu celular y hacé crecer tu plata sin comisiones. Todo desde una app que entiende cómo vivís.</p>
+      <div class="hero-btns reveal">
+        <a href="#cta" class="btn btn-primary">Abrí tu cuenta <span class="arrow">→</span></a>
+        <a href="#app" class="btn btn-ghost">Descargá la app</a>
+      </div>
+      <div class="stores reveal">
+        <a href="#" class="store" aria-label="Descargar en App Store">
+          <svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.8-1-2.8-4.2zM14 5.3c.7-.8 1.2-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></svg>
+          <span><small>Descargalo en</small><b>App Store</b></span>
+        </a>
+        <a href="#" class="store" aria-label="Disponible en Google Play">
+          <svg viewBox="0 0 24 24"><path d="M3.6 2.2c-.3.3-.4.7-.4 1.2v17.2c0 .5.1.9.4 1.2l9.6-9.8zm10.7 8.7 2.8-2.9L5.4 1.4c-.4-.2-.8-.3-1.1-.2zm0 2.2-9.9 9.7c.3.1.7 0 1.1-.2l11.7-6.6zm4-3.7-3 3.1 3 3 3.1-1.7c.9-.5.9-1.9 0-2.4z"/></svg>
+          <span><small>Disponible en</small><b>Google Play</b></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual" id="heroVisual">
+      <div class="glow"></div>
+      <div class="phone" data-speed="-0.06">
+        <div class="screen">
+          <div class="app-top">
+            <div style="display:flex;gap:10px;align-items:center"><div class="avatar">SM</div><div style="line-height:1.2"><small style="color:var(--muted);font-size:11px">Hola,</small><br><b style="font-weight:600">Sofía</b></div></div>
+            <div class="app-icon-btn"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/></svg></div>
+          </div>
+          <div class="bal-card">
+            <small>Saldo disponible</small>
+            <div class="bal">$ 1.284.560<span>,32</span></div>
+            <div class="up">▲ +$ 12.480 rendimiento este mes</div>
+          </div>
+          <div class="actions">
+            <div class="act"><i><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></i>Transferir</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 20h1M17 20h1v1"/></svg></i>Pagar</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><path d="M17 7 7 17M15 17H7V9"/></svg></i>Recibir</div>
+          </div>
+          <div class="mv-title"><b style="font-weight:600">Movimientos</b><a href="#">Ver todos</a></div>
+          <div class="mv"><i>☕</i><div>Café Martínez<small>Hoy, 09:12</small></div><b>-$ 4.200</b></div>
+          <div class="mv"><i>💸</i><div>Transferencia de Juan<small>Ayer, 18:40</small></div><b class="pos">+$ 85.000</b></div>
+          <div class="mv"><i>🎵</i><div>Spotify<small>12 nov</small></div><b>-$ 2.999</b></div>
+          <div class="mv"><i>🛒</i><div>Supermercado<small>11 nov</small></div><b>-$ 38.720</b></div>
+        </div>
+      </div>
+      <div class="bank-card tilt" data-speed="0.08">
+        <div class="bc-logo"><svg viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 8-11h-6z" fill="#F5E60A"/></svg><span class="brand">Volta</span></div>
+        <div class="chip"></div>
+        <svg class="contactless" viewBox="0 0 24 24"><path d="M8 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14M16 2a14 14 0 0 1 0 20"/></svg>
+        <div class="bc-num">•••• •••• •••• 4821</div>
+        <div class="bc-name">Sofía Martínez</div>
+        <div class="bc-net"><span></span><span></span></div>
+      </div>
+      <div class="float-chip fc-1" data-speed="0.12">
+        <i><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></i>
+        <div><small>Transferencia enviada</small><b>$ 25.000 · al instante</b></div>
+      </div>
+      <div class="float-chip fc-2" data-speed="-0.1">
+        <i>★</i>
+        <div><small>Cashback</small><b>+$ 1.240</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOCIAL PROOF ================= -->
+<section class="proof">
+  <div class="container">
+    <div class="proof-top reveal">
+      <div class="avatars">
+        <span style="background:#F5E60A">LM</span><span style="background:#e8e8e8">JR</span><span style="background:#d4c200">AG</span><span style="background:#bdbdbd">PF</span><span style="background:#fff36b">+</span>
+      </div>
+      <p>Más de <b>500.000 personas</b> ya usan <span class="brand">Volta</span></p>
+      <span class="stars" aria-label="4,8 de 5 estrellas">★★★★★</span><span class="small">4,8 en las tiendas</span>
+    </div>
+  </div>
+  <div class="marquee-wrap">
+    <div class="marquee" aria-hidden="true">
+      <span>FORBES</span><span>Infobae</span><span>TechCrunch</span><span>La Nación</span><span>Bloomberg Línea</span><span>Clarín</span><span>Fintech Awards</span><span>iProUP</span>
+      <span>FORBES</span><span>Infobae</span><span>TechCrunch</span><span>La Nación</span><span>Bloomberg Línea</span><span>Clarín</span><span>Fintech Awards</span><span>iProUP</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BENEFITS ================= -->
+<section class="sec" id="beneficios">
+  <div class="glow" style="width:600px;height:600px;right:-250px;top:100px;opacity:.5"></div>
+  <div class="container">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow reveal">Beneficios</div>
+        <h2 class="h-lg reveal">Todo lo que necesitás.<br><span class="hl">Nada</span> de lo que no.</h2>
+      </div>
+      <p class="lead reveal">Una cuenta pensada para moverte rápido, sin letra chica ni costos escondidos.</p>
+    </div>
+    <div class="benefits">
+      <article class="b-card glass reveal-card">
+        <!-- <img data-3d src="renders/piggy.png" alt=""> -->
+        <svg class="ico3d" data-speed="-0.04"><use href="#i-piggy"/></svg>
+        <h3>Cuenta sin costo</h3><p>Sin mantenimiento, sin comisiones por apertura y sin saldo mínimo. Nunca.</p>
+      </article>
+      <article class="b-card glass reveal-card">
+        <svg class="ico3d" data-speed="-0.04"><use href="#i-bolt"/></svg>
+        <h3>Transferencias 24/7</h3><p>Enviá y recibí plata al instante, a cualquier banco o billetera, cualquier día y a cualquier hora.</p>
+      </article>
+      <article class="b-card glass reveal-card">
+        <svg class="ico3d" data-speed="-0.04"><use href="#i-finger"/></svg>
+        <h3>Seguridad biométrica</h3><p>Entrá con tu huella o tu cara y confirmá cada operación con un toque.</p>
+      </article>
+      <article class="b-card featured reveal-card" style="border-radius:var(--radius)">
+        <svg class="ico3d" data-speed="-0.04" style="filter:drop-shadow(0 18px 24px rgba(0,0,0,.35))"><use href="#i-coin"/></svg>
+        <h3>Cashback en cada compra</h3><p>Te devolvemos hasta el 5% de lo que gastás con tu tarjeta, directo a tu cuenta.</p>
+      </article>
+      <article class="b-card glass reveal-card">
+        <svg class="ico3d" data-speed="-0.04"><use href="#i-chart"/></svg>
+        <h3>Invertí desde $1.000</h3><p>Fondos, plazos fijos y dólares. Empezá con poco y mirá cómo crece día a día.</p>
+      </article>
+      <article class="b-card glass reveal-card">
+        <svg class="ico3d" data-speed="-0.04"><use href="#i-headset"/></svg>
+        <h3>Soporte humano</h3><p>Personas reales que te responden en minutos por chat, sin menús infinitos.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE CARD ================= -->
+<section class="sec card-sec" id="tarjeta">
+  <div class="glow"></div>
+  <div class="spot" aria-hidden="true"></div>
+  <div class="container">
+    <div class="eyebrow reveal">La tarjeta</div>
+    <h2 class="h-lg reveal">Negra, mate y <span class="hl">sin costo</span></h2>
+    <p class="lead reveal" style="margin:22px auto 0">Pedila gratis, activala desde la app y usala en todo el mundo.</p>
+    <div class="card-stage" id="cardStage">
+      <div class="bank-card tilt reveal-scale">
+        <div class="bc-logo"><svg viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 8-11h-6z" fill="#F5E60A"/></svg><span class="brand">Volta</span></div>
+        <div class="chip"></div>
+        <svg class="contactless" viewBox="0 0 24 24"><path d="M8 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14M16 2a14 14 0 0 1 0 20"/></svg>
+        <div class="bc-num">5412 •••• •••• 4821</div>
+        <div class="bc-name">Tu nombre acá</div>
+        <div class="bc-net"><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="card-shadow"></div>
+    <div class="card-feats reveal" style="margin-top:40px">
+      <div>Envío gratis a todo el país</div><div>Contactless y Apple/Google Pay</div><div>Congelala en 1 toque</div><div>Sin costo de renovación</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SPLIT PAY ================= -->
+<section class="sec" id="pagos">
+  <div class="container split">
+    <div>
+      <div class="eyebrow reveal">Pagos</div>
+      <h2 class="h-lg reveal">Comprá, pagá y <span class="hl">retirá</span> donde quieras</h2>
+      <p class="lead reveal">Acercá tu tarjeta o tu celular y listo. Retirá efectivo sin costo en miles de cajeros y comercios adheridos.</p>
+      <ul class="check-list reveal">
+        <li><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F5E60A"/><path d="m7 12 3.5 3.5L17 9" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Pagos QR en cualquier comercio</li>
+        <li><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F5E60A"/><path d="m7 12 3.5 3.5L17 9" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Extracciones sin costo en +15.000 puntos</li>
+        <li><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F5E60A"/><path d="m7 12 3.5 3.5L17 9" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Cuotas sin interés y préstamos al instante</li>
+      </ul>
+      <a href="#cta" class="btn btn-primary reveal">Empezá a pagar <span class="arrow">→</span></a>
+    </div>
+    <div class="yblock reveal-scale">
+      <svg class="wire" style="inset:0;width:100%;height:100%;opacity:1" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <circle cx="200" cy="200" r="80"/><circle cx="200" cy="200" r="130"/><circle cx="200" cy="200" r="180"/><circle cx="200" cy="200" r="240"/>
+      </svg>
+      <div class="terminal" data-speed="-0.05">
+        <div class="term-screen">
+          <small>Total a pagar</small>
+          <div class="amt">$ 12.450</div>
+          <div class="ok"><i><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></i>Pago aprobado</div>
+        </div>
+        <div class="keys"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>✕</span><span>0</span><span>✓</span></div>
+      </div>
+      <svg class="waves" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8a6 6 0 0 1 0 8"/><path d="M12 5a10 10 0 0 1 0 14"/><path d="M16 2a14 14 0 0 1 0 20"/></svg>
+      <div class="tap-card" data-speed="0.09">
+        <div class="bank-card">
+          <div class="bc-logo"><svg viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 8-11h-6z" fill="#F5E60A"/></svg><span class="brand">Volta</span></div>
+          <div class="chip"></div>
+          <svg class="contactless" viewBox="0 0 24 24"><path d="M8 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14M16 2a14 14 0 0 1 0 20"/></svg>
+          <div class="bc-num">•••• 4821</div>
+          <div class="bc-net"><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="ychip"><svg width="34" height="34"><use href="#i-coin"/></svg><div><b>+$ 622</b>Cashback de esta compra</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METRICS ================= -->
+<section class="metrics-sec">
+  <div class="container metrics">
+    <div class="metric reveal"><div class="num"><span data-count="500" data-suffix="K">0</span><em>+</em></div><p>Usuarios registrados</p></div>
+    <div class="metric reveal"><div class="num"><span data-count="38" data-suffix="M">0</span><em>+</em></div><p>Transacciones mensuales</p></div>
+    <div class="metric reveal"><div class="num"><span data-count="190">0</span><em>+</em></div><p>Países donde funciona tu tarjeta</p></div>
+    <div class="metric reveal"><div class="num"><span data-count="24" data-suffix="/7">0</span></div><p>Soporte humano, siempre</p></div>
+  </div>
+</section>
+
+<!-- ================= APP CAROUSEL ================= -->
+<section class="sec app-sec" id="app">
+  <div class="glow"></div>
+  <div class="container">
+    <div class="sec-head" style="margin-bottom:10px">
+      <div>
+        <div class="eyebrow reveal">App y recompensas</div>
+        <h2 class="h-lg reveal">Ahorrá, subí de nivel y<br>ganá <span class="hl">recompensas reales</span></h2>
+      </div>
+      <div class="car-ctrl reveal">
+        <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15 18 9 12l6-6"/></svg></button>
+        <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <div class="carousel" id="carousel">
+      <!-- 1 Saldo -->
+      <div class="slide">
+        <div class="phone"><div class="screen">
+          <div class="scr-title">Mi cuenta</div>
+          <div class="bal-card"><small>Saldo total</small><div class="bal" style="font-size:26px">$ 1.284.560</div><div class="up">▲ 3,2% este mes</div></div>
+          <div class="actions">
+            <div class="act"><i><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></i>Transferir</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></i>Pagar</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><path d="M17 7 7 17M15 17H7V9"/></svg></i>Recibir</div>
+          </div>
+          <div class="mv"><i>🍕</i><div>Rappi<small>Hoy</small></div><b>-$ 9.800</b></div>
+          <div class="mv"><i>💼</i><div>Sueldo<small>1 nov</small></div><b class="pos">+$ 950.000</b></div>
+          <div class="mv"><i>⛽</i><div>YPF<small>30 oct</small></div><b>-$ 32.000</b></div>
+        </div></div>
+        <div class="slide-cap"><b>Tu plata, clara</b><span>Saldo y movimientos en tiempo real</span></div>
+      </div>
+      <!-- 2 Metas -->
+      <div class="slide">
+        <div class="phone"><div class="screen">
+          <div class="scr-title">Metas de ahorro</div>
+          <div class="goal"><div class="goal-top"><b>✈️ Viaje a Japón</b><span>72%</span></div><div class="bar"><i style="width:72%"></i></div><small>$ 2.160.000 de $ 3.000.000</small></div>
+          <div class="goal"><div class="goal-top"><b>💻 Notebook nueva</b><span>45%</span></div><div class="bar"><i style="width:45%"></i></div><small>$ 675.000 de $ 1.500.000</small></div>
+          <div class="goal"><div class="goal-top"><b>🛟 Fondo de emergencia</b><span>90%</span></div><div class="bar"><i style="width:90%"></i></div><small>$ 1.800.000 de $ 2.000.000</small></div>
+          <div class="goal" style="text-align:center;border-style:dashed;color:var(--yellow)">+ Crear nueva meta</div>
+        </div></div>
+        <div class="slide-cap"><b>Metas que se cumplen</b><span>Redondeo automático en cada compra</span></div>
+      </div>
+      <!-- 3 Nivel -->
+      <div class="slide">
+        <div class="phone"><div class="screen">
+          <div class="level">
+            <small style="color:var(--muted)">Tu nivel</small>
+            <svg class="ico3d"><use href="#i-shield"/></svg>
+            <h4>Volta <span class="hl">Gold</span></h4>
+            <p>Te faltan 1.200 pts para Platinum</p>
+            <div class="bar"><i style="width:68%"></i></div>
+            <div class="tiers"><span>Base</span><span>Silver</span><span class="on">Gold</span><span>Platinum</span></div>
+          </div>
+        </div></div>
+        <div class="slide-cap"><b>Subí de nivel</b><span>Más uso, más beneficios</span></div>
+      </div>
+      <!-- 4 Puntos -->
+      <div class="slide">
+        <div class="phone"><div class="screen">
+          <div class="points"><svg class="ico3d"><use href="#i-coin"/></svg><b>24.850</b><small>puntos disponibles</small></div>
+          <div class="reward"><i>🎬</i><span>2 entradas de cine</span><em>3.000</em></div>
+          <div class="reward"><i>☕</i><span>Café de especialidad</span><em>800</em></div>
+          <div class="reward"><i>✈️</i><span>Millas aéreas x1.000</span><em>5.000</em></div>
+          <div class="reward"><i>🎁</i><span>Gift card $ 20.000</span><em>10.000</em></div>
+        </div></div>
+        <div class="slide-cap"><b>Canjeá tus puntos</b><span>Recompensas que sí querés</span></div>
+      </div>
+      <!-- 5 Inversión -->
+      <div class="slide">
+        <div class="phone"><div class="screen">
+          <div class="scr-title">Inversiones</div>
+          <div class="inv-mini">
+            <small style="color:var(--muted);font-size:11px">Valor actual</small>
+            <div style="font-size:24px;font-weight:600;letter-spacing:-.03em">$ 842.300</div>
+            <span class="up">▲ +18,4% en 6 meses</span>
+            <svg viewBox="0 0 200 100" preserveAspectRatio="none"><path d="M0 85 C20 80 30 70 50 72 S80 50 100 55 140 30 160 32 185 12 200 8 V100 H0Z" fill="url(#chartFill)"/><path d="M0 85 C20 80 30 70 50 72 S80 50 100 55 140 30 160 32 185 12 200 8" fill="none" stroke="#F5E60A" stroke-width="2.5"/></svg>
+            <div class="chips"><span>1M</span><span class="on">6M</span><span>1A</span><span>Todo</span></div>
+          </div>
+          <div class="mv"><i>📈</i><div>Fondo Ahorro Plus<small>Rescate inmediato</small></div><b class="pos">+12%</b></div>
+          <div class="mv"><i>💵</i><div>Dólar MEP<small>USD 420</small></div><b class="pos">+4%</b></div>
+        </div></div>
+        <div class="slide-cap"><b>Invertí fácil</b><span>Desde $1.000, sin vueltas</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INVESTMENTS ================= -->
+<section class="sec inv-sec" id="inversiones">
+  <div class="glow" style="width:700px;height:700px;left:-300px;top:10%;opacity:.45"></div>
+  <div class="container">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow reveal">Inversiones</div>
+        <h2 class="h-lg reveal">Hacé que tu plata<br><span class="hl">trabaje</span> por vos</h2>
+      </div>
+      <p class="lead reveal">Simulá cuánto podrías ganar. Sin conocimientos previos, sin montos mínimos altos.</p>
+    </div>
+    <div class="inv-grid">
+      <div class="inv-chart glass reveal-card">
+        <div class="inv-chart-top">
+          <div>
+            <small class="small">Fondo Volta Ahorro Plus</small>
+            <div class="big" id="chartValue">$ 0</div>
+            <span class="tag" id="chartTag">▲ +0%</span>
+          </div>
+          <div class="ranges" role="tablist" aria-label="Período">
+            <button data-r="1">1M</button><button data-r="6">6M</button><button data-r="12" class="on">1A</button><button data-r="36">3A</button>
+          </div>
+        </div>
+        <svg id="chart" viewBox="0 0 600 300" preserveAspectRatio="none" aria-label="Gráfico de rendimiento"></svg>
+      </div>
+      <div class="sim glass reveal-card">
+        <h3>Simulador de rendimiento</h3>
+        <div class="field">
+          <label for="amount">Monto a invertir <output id="amountOut">$ 500.000</output></label>
+          <input type="range" id="amount" min="1000" max="5000000" step="1000" value="500000" />
+        </div>
+        <div class="field">
+          <label for="term">Plazo <output id="termOut">12 meses</output></label>
+          <input type="range" id="term" min="1" max="36" step="1" value="12" />
+        </div>
+        <div class="result">
+          <small>Tendrías aproximadamente</small>
+          <div class="r-big" id="total">$ 0</div>
+          <div class="result-row"><span>Ganancia estimada</span><b id="gain">$ 0</b></div>
+          <div class="result-row" style="border:0;padding-top:6px"><span>TNA de referencia</span><b>32%</b></div>
+        </div>
+        <p class="disclaimer">Simulación ilustrativa con capitalización mensual. Rendimientos pasados no garantizan rendimientos futuros.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GLOBAL YELLOW BLOCK ================= -->
+<section class="sec global" id="global">
+  <div class="container global-grid">
+    <div>
+      <div class="eyebrow reveal">Global</div>
+      <h2 class="h-lg reveal">Tu banco en cada transacción, en el local o en línea</h2>
+      <p class="reveal">Comprá en cualquier tienda del mundo, mandá plata al exterior en minutos y convertí monedas al mejor tipo de cambio, sin comisiones escondidas.</p>
+      <a href="#cta" class="btn btn-dark reveal">Conocé más <span class="arrow">→</span></a>
+    </div>
+    <div class="globe-wrap reveal-scale">
+      <svg class="globe" viewBox="0 0 440 440" aria-hidden="true">
+        <circle cx="220" cy="220" r="210"/>
+        <ellipse cx="220" cy="220" rx="210" ry="70"/><ellipse cx="220" cy="220" rx="210" ry="140"/>
+        <line x1="10" y1="220" x2="430" y2="220"/>
+        <ellipse cx="220" cy="150" rx="190" ry="40" opacity=".6"/><ellipse cx="220" cy="290" rx="190" ry="40" opacity=".6"/>
+        <g class="meridians"><ellipse cx="220" cy="220" rx="70" ry="210"/><ellipse cx="220" cy="220" rx="140" ry="210"/><ellipse cx="220" cy="220" rx="190" ry="210"/><line x1="220" y1="10" x2="220" y2="430"/></g>
+      </svg>
+      <div class="flag f-ar" data-speed="0.1"></div>
+      <div class="flag f-br" data-speed="-0.08"><span></span></div>
+      <div class="flag f-es" data-speed="0.12"></div>
+      <div class="flag f-us" data-speed="-0.12"></div>
+      <div class="flag f-mx" data-speed="0.06"></div>
+      <div class="flag f-it" data-speed="-0.05"></div>
+      <div class="fx-chip">
+        <small>Enviaste a Madrid · 2 min</small>
+        <div class="fx"><span>$ 250.000</span><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><em>€ 214</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECURITY ================= -->
+<section class="sec sec-security">
+  <div class="glow"></div>
+  <div class="container" style="position:relative;z-index:2">
+    <div class="eyebrow reveal">Seguridad</div>
+    <h2 class="h-lg reveal">Tu plata, <span class="hl">blindada</span></h2>
+    <p class="lead reveal" style="margin:22px auto 0">Protección de nivel bancario en cada toque, las 24 horas.</p>
+    <div class="shield-stage">
+      <div class="orbit o1"></div><div class="orbit o2"></div>
+      <!-- <img data-3d src="renders/shield.png" alt="Escudo de seguridad"> -->
+      <svg class="ico3d reveal-scale" data-speed="-0.08" role="img" aria-label="Escudo de seguridad"><use href="#i-shield"/></svg>
+      <div class="sec-point glass sp1 reveal-card">
+        <div class="sp-ico"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <h4>Encriptación de punta a punta</h4><p>Tus datos viajan cifrados con AES-256 y TLS 1.3.</p>
+      </div>
+      <div class="sec-point glass sp2 reveal-card">
+        <div class="sp-ico"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7z"/></svg></div>
+        <h4>Regulado por el BCRA</h4><p>Entidad financiera autorizada y supervisada por el Banco Central.</p>
+      </div>
+      <div class="sec-point glass sp3 reveal-card">
+        <div class="sp-ico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M7 15h3"/></svg></div>
+        <h4>Bloqueo instantáneo</h4><p>Congelá o reactivá tu tarjeta en un segundo desde la app.</p>
+      </div>
+      <div class="sec-point glass sp4 reveal-card">
+        <div class="sp-ico"><svg viewBox="0 0 24 24"><path d="M12 11c0 4-1 7-3 9M8 7a6 6 0 0 1 10 4c0 3-.5 6-1.5 8M5 10a8 8 0 0 1 1-3M12 15c0 2-.4 3.5-1 5"/></svg></div>
+        <h4>Biometría</h4><p>Huella o reconocimiento facial para ingresar y autorizar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec faq-sec" id="faq">
+  <div class="container faq-grid">
+    <div class="faq-side">
+      <div class="eyebrow reveal">Ayuda</div>
+      <h2 class="h-lg reveal">Preguntas <span class="hl">frecuentes</span></h2>
+      <p class="lead reveal">¿No encontrás lo que buscás? Nuestro equipo te responde en minutos.</p>
+      <a href="#" class="btn btn-ghost reveal">Hablar con una persona</a>
+    </div>
+    <div class="faq">
+      <div class="qa reveal"><button aria-expanded="false">¿Cuánto cuesta abrir y mantener la cuenta?<span class="plus"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></span></button><div class="ans"><div><p>Nada. La cuenta y la tarjeta de débito son 100% gratuitas: sin costo de apertura, mantenimiento ni renovación.</p></div></div></div>
+      <div class="qa reveal"><button aria-expanded="false">¿Qué necesito para abrir mi cuenta?<span class="plus"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></span></button><div class="ans"><div><p>Ser mayor de 13 años, tu DNI y un celular. Te sacás una selfie, validamos tu identidad y en 5 minutos ya estás operando.</p></div></div></div>
+      <div class="qa reveal"><button aria-expanded="false">¿Es seguro tener mi dinero en un banco digital?<span class="plus"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></span></button><div class="ans"><div><p>Sí. Somos una entidad regulada por el BCRA y tus depósitos cuentan con la garantía de SEDESA según la normativa vigente.</p></div></div></div>
+      <div class="qa reveal"><button aria-expanded="false">¿Cuánto tarda en llegar la tarjeta física?<span class="plus"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></span></button><div class="ans"><div><p>Entre 3 y 7 días hábiles según tu ubicación. Mientras tanto podés usar tu tarjeta virtual para comprar online o con el celular.</p></div></div></div>
+      <div class="qa reveal"><button aria-expanded="false">¿Puedo usar la tarjeta en el exterior?<span class="plus"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></span></button><div class="ans"><div><p>Sí, funciona en más de 190 países. Podés pagar en pesos o con tu saldo en dólares, y activar avisos de viaje desde la app.</p></div></div></div>
+      <div class="qa reveal"><button aria-expanded="false">¿Cómo funcionan los puntos y el cashback?<span class="plus"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></span></button><div class="ans"><div><p>Cada compra suma puntos según tu nivel y te devuelve un porcentaje en pesos. Los puntos se canjean por productos, millas o gift cards.</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta" id="cta">
+  <div class="glow"></div>
+  <svg class="ico3d float ci1" viewBox="0 0 120 120" data-speed="0.15"><use href="#i-coin"/></svg>
+  <svg class="ico3d float ci2" viewBox="0 0 120 120" data-speed="-0.12"><use href="#i-gift"/></svg>
+  <svg class="ico3d float ci3" viewBox="0 0 120 120" data-speed="0.1"><use href="#i-card"/></svg>
+  <svg class="ico3d float ci4" viewBox="0 0 120 120" data-speed="-0.14"><use href="#i-piggy"/></svg>
+  <div class="container cta-box">
+    <h2 class="h-xl reveal">Abrí tu cuenta en <span class="hl">5 minutos</span></h2>
+    <p class="lead reveal">Sin papeles, sin filas y sin costo. Solo tu DNI y tu celular.</p>
+    <div class="cta-btns reveal">
+      <a href="#" class="btn btn-primary" style="height:62px;padding:0 40px;font-size:18px">Abrí tu cuenta gratis <span class="arrow">→</span></a>
+      <div class="stores" style="justify-content:center">
+        <a href="#" class="store" aria-label="Descargar en App Store"><svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.8-1-2.8-4.2zM14 5.3c.7-.8 1.2-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></svg><span><small>Descargalo en</small><b>App Store</b></span></a>
+        <a href="#" class="store" aria-label="Disponible en Google Play"><svg viewBox="0 0 24 24"><path d="M3.6 2.2c-.3.3-.4.7-.4 1.2v17.2c0 .5.1.9.4 1.2l9.6-9.8zm10.7 8.7 2.8-2.9L5.4 1.4c-.4-.2-.8-.3-1.1-.2zm0 2.2-9.9 9.7c.3.1.7 0 1.1-.2l11.7-6.6zm4-3.7-3 3.1 3 3 3.1-1.7c.9-.5.9-1.9 0-2.4z"/></svg><span><small>Disponible en</small><b>Google Play</b></span></a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="container">
+    <div class="f-top">
+      <div class="f-brand">
+        <a href="#" class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 8-11h-6z" fill="#000"/></svg></span><span class="brand">Volta</span></a>
+        <p>La banca digital que se mueve con vos. Simple, segura y sin costos.</p>
+        <div class="socials">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zM17.3 5.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zM12 2c-2.7 0-3 0-4.1.1C4.3 2.2 2.2 4.3 2.1 7.9 2 9 2 9.3 2 12s0 3 .1 4.1c.1 3.6 2.2 5.7 5.8 5.8 1.1.1 1.4.1 4.1.1s3 0 4.1-.1c3.6-.1 5.7-2.2 5.8-5.8.1-1.1.1-1.4.1-4.1s0-3-.1-4.1c-.1-3.6-2.2-5.7-5.8-5.8C15 2 14.7 2 12 2z"/></svg></a>
+          <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M17.8 3h3.1l-6.8 7.7 8 10.3h-6.2l-4.9-6.3L5.4 21H2.3l7.2-8.3L1.8 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.5z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4z"/></svg></a>
+          <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.7V9.1a7.3 7.3 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z"/></svg></a>
+        </div>
+      </div>
+      <div class="f-col"><h5>Productos</h5><ul><li><a href="#">Cuenta</a></li><li><a href="#">Tarjeta de débito</a></li><li><a href="#">Tarjeta de crédito</a></li><li><a href="#">Inversiones</a></li><li><a href="#">Préstamos</a></li></ul></div>
+      <div class="f-col"><h5>Empresas</h5><ul><li><a href="#">Cuenta PyME</a></li><li><a href="#">Cobros con QR</a></li><li><a href="#">Pago a proveedores</a></li><li><a href="#">API</a></li></ul></div>
+      <div class="f-col"><h5>Compañía</h5><ul><li><a href="#">Sobre nosotros</a></li><li><a href="#">Trabajá con nosotros</a></li><li><a href="#">Prensa</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div class="f-col"><h5>Ayuda</h5><ul><li><a href="#">Centro de ayuda</a></li><li><a href="#">Seguridad</a></li><li><a href="#">Contacto</a></li><li><a href="#">Defensa del consumidor</a></li></ul></div>
+    </div>
+    <div class="f-reg">
+      <svg class="ico3d" viewBox="0 0 120 120"><use href="#i-shield"/></svg>
+      <p><span class="brand">Volta</span> S.A. es una entidad financiera autorizada y regulada por el Banco Central de la República Argentina (BCRA). Los depósitos en pesos y en moneda extranjera cuentan con la garantía de hasta $ 25.000.000. En las operaciones a nombre de dos o más personas, la garantía se prorrateará entre sus titulares. Ley 24.485, Decreto 540/95 y modificatorios. Se encuentran excluidos los captados a tasas superiores a la de referencia, los adquiridos por endoso y los efectuados por personas vinculadas a la entidad financiera. <em>Datos ilustrativos: reemplazar por la información legal real de la entidad.</em></p>
+    </div>
+    <div class="f-bottom">
+      <span>© <span id="year">2026</span> <span class="brand">Volta</span> S.A. Todos los derechos reservados.</span>
+      <div class="f-legal"><a href="#">Términos y condiciones</a><a href="#">Privacidad</a><a href="#">Cookies</a><a href="#">Usuarios financieros</a></div>
+      <label class="lang"><span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Idioma</span>
+        <select aria-label="Idioma"><option>🇦🇷 Español</option><option>🇺🇸 English</option><option>🇧🇷 Português</option></select>
+      </label>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+/* ============ CONFIG: cambiá el nombre del banco acá ============ */
+const BANK_NAME = "Volta";
+document.querySelectorAll(".brand").forEach(el => el.textContent = BANK_NAME);
+document.title = BANK_NAME + " — La banca que se mueve con vos";
+document.getElementById("year").textContent = new Date().getFullYear();
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const finePointer = matchMedia("(pointer: fine)").matches;
+const $ = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+const fmt = n => "$ " + Math.round(n).toLocaleString("es-AR");
+
+/* ---------- Navbar ---------- */
+const nav = $("#nav");
+const onScroll = () => nav.classList.toggle("scrolled", scrollY > 30);
+addEventListener("scroll", onScroll, { passive: true }); onScroll();
+$("#burger").addEventListener("click", () => {
+  const open = nav.classList.toggle("open");
+  $("#burger").setAttribute("aria-expanded", open);
+});
+$$(".mobile-menu a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
+
+/* ---------- Cursor glow ---------- */
+const cg = $(".cursor-glow");
+if (finePointer && !reduce) {
+  let mx = innerWidth / 2, my = innerHeight / 2, cx = mx, cy = my;
+  addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    cx += (mx - cx) * .12; cy += (my - cy) * .12;
+    cg.style.transform = `translate(${cx}px,${cy}px)`;
+    requestAnimationFrame(loop);
+  })();
+} else cg.style.display = "none";
+
+/* ---------- 3D tilt ---------- */
+function tilt(el, area, max = 18) {
+  if (!finePointer || reduce) return;
+  area.addEventListener("mousemove", e => {
+    const r = area.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    el.style.transition = "transform .1s linear";
+    el.style.transform = `perspective(1000px) rotateY(${x * max}deg) rotateX(${-y * max}deg) translateZ(20px)`;
+    el.style.setProperty("--gx", (x + .5) * 100 + "%");
+    el.style.setProperty("--gy", (y + .5) * 100 + "%");
+  });
+  area.addEventListener("mouseleave", () => {
+    el.style.transition = "transform .8s cubic-bezier(.2,.8,.2,1)";
+    el.style.transform = "perspective(1000px) rotateY(-14deg) rotateX(8deg)";
+  });
+  el.style.transform = "perspective(1000px) rotateY(-14deg) rotateX(8deg)";
+}
+// Tilt on an inner wrapper so GSAP parallax (on the parent) doesn't fight it
+const heroCard = $(".hero .bank-card");
+tilt(heroCard, $("#heroVisual"), 26);
+tilt($("#cardStage .bank-card"), $("#tarjeta"), 22);
+
+/* ---------- Glow interno de las tarjetas de beneficios sigue al cursor ---------- */
+if (finePointer && !reduce) {
+  $$(".b-card").forEach(c => {
+    c.addEventListener("mousemove", e => {
+      const r = c.getBoundingClientRect();
+      c.style.setProperty("--mx", (e.clientX - r.left) + "px");
+      c.style.setProperty("--my", (e.clientY - r.top) + "px");
+    });
+    c.addEventListener("mouseleave", () => { c.style.removeProperty("--mx"); c.style.removeProperty("--my"); });
+  });
+}
+
+/* ---------- Carousel ---------- */
+const car = $("#carousel");
+const step = () => ($(".slide", car).offsetWidth + 28);
+$("#next").addEventListener("click", () => car.scrollBy({ left: step(), behavior: "smooth" }));
+$("#prev").addEventListener("click", () => car.scrollBy({ left: -step(), behavior: "smooth" }));
+let down = false, sx = 0, sl = 0, moved = false;
+car.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") return; down = true; moved = false; sx = e.clientX; sl = car.scrollLeft; car.classList.add("dragging"); });
+addEventListener("pointermove", e => { if (!down) return; const d = e.clientX - sx; if (Math.abs(d) > 3) moved = true; car.scrollLeft = sl - d; });
+addEventListener("pointerup", () => { if (!down) return; down = false; car.classList.remove("dragging"); });
+
+/* ---------- FAQ ---------- */
+$$(".qa button").forEach(b => b.addEventListener("click", () => {
+  const qa = b.parentElement, open = !qa.classList.contains("open");
+  $$(".qa").forEach(q => { q.classList.remove("open"); $("button", q).setAttribute("aria-expanded", "false"); });
+  if (open) { qa.classList.add("open"); b.setAttribute("aria-expanded", "true"); }
+}));
+
+/* ---------- Simulator + chart ---------- */
+const TNA = 0.32, monthly = TNA / 12;
+const amount = $("#amount"), term = $("#term");
+function paintRange(r) { r.style.setProperty("--p", ((r.value - r.min) / (r.max - r.min) * 100) + "%"); }
+function updateSim() {
+  const a = +amount.value, t = +term.value;
+  const total = a * Math.pow(1 + monthly, t);
+  $("#amountOut").textContent = fmt(a);
+  $("#termOut").textContent = t + (t === 1 ? " mes" : " meses");
+  $("#total").textContent = fmt(total);
+  $("#gain").textContent = "+" + fmt(total - a);
+  paintRange(amount); paintRange(term);
+  drawChart(a, t);
+}
+amount.addEventListener("input", updateSim);
+term.addEventListener("input", updateSim);
+$$(".ranges button").forEach(b => b.addEventListener("click", () => {
+  $$(".ranges button").forEach(x => x.classList.remove("on")); b.classList.add("on");
+  term.value = b.dataset.r; updateSim();
+}));
+
+function drawChart(a, months) {
+  const svg = $("#chart"), W = 600, H = 300, pad = 24, n = Math.max(months * 4, 12);
+  // Serie con pequeña volatilidad determinística sobre la curva compuesta
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const m = i / n * months;
+    const base = a * Math.pow(1 + monthly, m);
+    const noise = 1 + (Math.sin(i * 1.7) * .006 + Math.sin(i * .53) * .01) * Math.min(1, i / 3);
+    pts.push(base * noise);
+  }
+  const min = Math.min(...pts) * .995, max = Math.max(...pts) * 1.005;
+  const x = i => pad + i / n * (W - pad * 2), y = v => H - pad - (v - min) / (max - min) * (H - pad * 2);
+  let d = `M${x(0)},${y(pts[0])}`;
+  for (let i = 1; i <= n; i++) {
+    const px = x(i - 1), py = y(pts[i - 1]), cx = x(i), cy = y(pts[i]), mx = (px + cx) / 2;
+    d += ` C${mx},${py} ${mx},${cy} ${cx},${cy}`;
+  }
+  const area = d + ` L${x(n)},${H - pad} L${x(0)},${H - pad} Z`;
+  let grid = "";
+  for (let g = 0; g < 4; g++) { const gy = pad + g * (H - pad * 2) / 3; grid += `<line x1="${pad}" x2="${W - pad}" y1="${gy}" y2="${gy}"/>`; }
+  const last = pts[n];
+  svg.innerHTML = `
+    <defs><filter id="lg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+    <g class="grid">${grid}</g>
+    <path d="${area}" fill="url(#chartFill)"/>
+    <path d="${d}" fill="none" stroke="#F5E60A" stroke-width="6" opacity=".35" filter="url(#lg)"/>
+    <path id="chartLine" d="${d}" fill="none" stroke="#F5E60A" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="${x(n)}" cy="${y(last)}" r="10" fill="#F5E60A" opacity=".25"/>
+    <circle cx="${x(n)}" cy="${y(last)}" r="5" fill="#F5E60A" stroke="#0A0A0A" stroke-width="2"/>
+    <text x="${pad}" y="${H - 4}">Hoy</text><text x="${W - pad}" y="${H - 4}" text-anchor="end">${months} ${months === 1 ? "mes" : "meses"}</text>`;
+  $("#chartValue").textContent = fmt(last);
+  $("#chartTag").textContent = "▲ +" + ((last / a - 1) * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + "%";
+  $$(".ranges button").forEach(b => b.classList.toggle("on", +b.dataset.r === months));
+}
+updateSim();
+
+/* ---------- Counters ---------- */
+function runCounter(el) {
+  const target = +el.dataset.count, suf = el.dataset.suffix || "";
+  if (reduce || !window.gsap) { el.textContent = target + suf; return; }
+  const o = { v: 0 };
+  gsap.to(o, { v: target, duration: 2, ease: "power3.out", onUpdate: () => el.textContent = Math.round(o.v) + suf });
+}
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { runCounter(e.target); io.unobserve(e.target); } }), { threshold: .5 });
+$$("[data-count]").forEach(el => io.observe(el));
+
+/* ---------- GSAP: reveals + parallax ---------- */
+if (window.gsap && window.ScrollTrigger && !reduce) {
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero intro
+  gsap.from(".hero .reveal", { y: 40, opacity: 0, duration: 1, ease: "power3.out", stagger: .1, delay: .1 });
+  gsap.from(".hero .phone", { y: 80, opacity: 0, duration: 1.3, ease: "power3.out", delay: .3 });
+  gsap.from(".hero .bank-card", { x: 80, opacity: 0, duration: 1.3, ease: "power3.out", delay: .6 });
+  gsap.from(".hero .float-chip", { scale: .8, opacity: 0, duration: .8, ease: "back.out(1.6)", stagger: .15, delay: 1 });
+
+  // Floating loop for the hero phone
+  gsap.to(".hero .phone", { y: "-=14", duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1 });
+
+  // Section reveals
+  $$(".reveal").forEach(el => {
+    if (el.closest(".hero")) return;
+    gsap.from(el, { y: 40, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } });
+  });
+  ScrollTrigger.batch(".reveal-card", {
+    start: "top 88%",
+    onEnter: b => gsap.from(b, { y: 60, opacity: 0, duration: 1, ease: "power3.out", stagger: .1, overwrite: true })
+  });
+  $$(".reveal-scale").forEach(el => {
+    gsap.from(el, { scale: .85, opacity: 0, duration: 1.2, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 85%" } });
+  });
+
+  // Parallax
+  $$("[data-speed]").forEach(el => {
+    if (el.closest(".hero") && el.classList.contains("bank-card")) return; // tilt owns its transform
+    if (el.classList.contains("phone") && el.closest(".hero")) return;    // float loop owns it
+    const s = parseFloat(el.dataset.speed);
+    gsap.to(el, { yPercent: s * -300, ease: "none", scrollTrigger: { trigger: el.closest("section"), start: "top bottom", end: "bottom top", scrub: true } });
+  });
+
+  // Glows react to scroll (yPercent) and follow the cursor (x/y, separate props so they combine)
+  $$(".glow").forEach(g => gsap.fromTo(g, { yPercent: -10 }, { yPercent: 10, ease: "none", scrollTrigger: { trigger: g.parentElement, start: "top bottom", end: "bottom top", scrub: true } }));
+
+  if (finePointer) {
+    const glows = $$(".glow").map(g => ({
+      el: g,
+      area: g.parentElement,
+      follow: g.closest(".hero-visual") ? .5 : .35, // qué tanto se acerca al cursor
+      xTo: gsap.quickTo(g, "x", { duration: 1.2, ease: "power3.out" }),
+      yTo: gsap.quickTo(g, "y", { duration: 1.2, ease: "power3.out" }),
+      sTo: gsap.quickTo(g, "scale", { duration: 1.2, ease: "power3.out" })
+    }));
+    addEventListener("mousemove", e => {
+      glows.forEach(o => {
+        const r = o.area.getBoundingClientRect();
+        if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) return;
+        const gr = o.el.getBoundingClientRect();
+        const cx = gr.left + gr.width / 2 - gsap.getProperty(o.el, "x");
+        const cy = gr.top + gr.height / 2 - gsap.getProperty(o.el, "y");
+        const max = 260;
+        o.xTo(gsap.utils.clamp(-max, max, (e.clientX - cx) * o.follow));
+        o.yTo(gsap.utils.clamp(-max, max, (e.clientY - cy) * o.follow));
+        o.sTo(1.08);
+      });
+    }, { passive: true });
+    glows.forEach(o => o.area.addEventListener("mouseleave", () => { o.xTo(0); o.yTo(0); o.sTo(1); }));
+  }
+
+  // Chart line draw-in
+  ScrollTrigger.create({
+    trigger: "#chart", start: "top 80%", once: true,
+    onEnter: () => {
+      const p = $("#chartLine"); if (!p) return;
+      const L = p.getTotalLength();
+      gsap.fromTo(p, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.8, ease: "power2.out", onComplete: () => p.style.strokeDasharray = "none" });
+    }
+  });
+}
+</script>
+</body>
+</html>
